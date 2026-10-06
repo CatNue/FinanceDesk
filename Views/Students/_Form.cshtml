@@ -1,0 +1,11 @@
+@model Student
+<form method="post" style="max-width:600px">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3"><label asp-for="StudentNo" class="form-label"></label><input asp-for="StudentNo" class="form-control" /><span asp-validation-for="StudentNo" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="FullName" class="form-label"></label><input asp-for="FullName" class="form-control" /><span asp-validation-for="FullName" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="GradeLevel" class="form-label"></label><input asp-for="GradeLevel" class="form-control" placeholder="e.g. Grade 7" /><span asp-validation-for="GradeLevel" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" /><span asp-validation-for="Email" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="Phone" class="form-label"></label><input asp-for="Phone" class="form-control" /></div>
+    <button class="btn btn-primary">Save</button> <a class="btn btn-light" asp-action="Index">Cancel</a>
+</form>

@@ -1,0 +1,109 @@
+@model LoginVM
+@{
+    Layout = null;
+    ViewData["Title"] = "Sign in";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in - UC Banilad FinanceDesk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <style>
+        body { font-family:'Inter',system-ui,sans-serif; min-height:100vh; margin:0; background:#fff; }
+        .split { display:flex; min-height:100vh; }
+        .hero { flex:1.15; position:relative; color:#fff; padding:3rem 3.5rem; display:flex; flex-direction:column; justify-content:space-between;
+                background:radial-gradient(circle at 15% 10%, rgba(245,179,1,.18), transparent 40%), linear-gradient(160deg,#0a1f44 0%,#12306b 60%,#1e3a8a 100%); overflow:hidden; }
+        .hero::after { content:""; position:absolute; right:-140px; bottom:-140px; width:420px; height:420px; border-radius:50%; border:60px solid rgba(245,179,1,.10); }
+        .hero::before { content:""; position:absolute; right:60px; top:-90px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,.05); }
+        .logo-box { width:56px; height:56px; border-radius:14px; background:linear-gradient(135deg,#fbbf24,#f5b301); color:#0a1f44; display:grid; place-items:center; font-size:1.8rem; overflow:hidden; }
+        .logo-box img { width:100%; height:100%; object-fit:contain; background:#fff; }
+        .hero h1 { font-weight:800; font-size:2.4rem; line-height:1.15; letter-spacing:-.02em; }
+        .hero h1 span { color:#f5b301; }
+        .feat { display:flex; gap:.9rem; align-items:flex-start; margin-bottom:1.1rem; position:relative; z-index:1; }
+        .feat i { width:38px; height:38px; flex:none; border-radius:10px; background:rgba(255,255,255,.10); display:grid; place-items:center; color:#f5b301; font-size:1.1rem; }
+        .feat b { display:block; font-weight:600; }
+        .feat small { color:#b6c4e2; }
+        .form-side { flex:1; display:flex; align-items:center; justify-content:center; padding:2rem; background:#f8fafc; }
+        .login-card { width:100%; max-width:410px; }
+        .login-card h2 { font-weight:800; letter-spacing:-.02em; color:#0a1f44; }
+        .form-control { border-radius:12px; padding:.75rem 1rem; border-color:#cbd5e1; }
+        .form-control:focus { border-color:#1e3a8a; box-shadow:0 0 0 .2rem rgba(30,58,138,.15); }
+        .input-group-text { background:#fff; border-color:#cbd5e1; border-radius:12px 0 0 12px; color:#64748b; }
+        .input-group .form-control { border-radius:0 12px 12px 0; }
+        .input-group .pw { border-radius:0; }
+        .btn-eye { border:1px solid #cbd5e1; border-left:0; background:#fff; border-radius:0 12px 12px 0; color:#64748b; }
+        .btn-login { background:#1e3a8a; color:#fff; border:0; border-radius:12px; padding:.8rem; font-weight:600; }
+        .btn-login:hover { background:#172f6f; color:#fff; }
+        .foot { color:#94a3b8; font-size:.78rem; }
+        @@media (max-width: 900px) { .hero { display:none; } .form-side { background:#fff; } }
+    </style>
+</head>
+<body>
+<div class="split">
+    <section class="hero">
+        <div class="d-flex align-items-center gap-3" style="position:relative;z-index:1">
+            <div class="logo-box">
+                <img src="~/images/uc-logo.png" alt="" onerror="this.remove()" onload="this.nextElementSibling.style.display='none'" />
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <div><div class="fw-bold fs-5">University of Cebu</div><div style="color:#b6c4e2;font-size:.85rem">Banilad Campus</div></div>
+        </div>
+        <div style="position:relative;z-index:1">
+            <h1>Billing &amp; Payments<br /><span>Management System</span></h1>
+            <p class="mt-3 mb-5" style="color:#c7d2ee;max-width:460px">A single, secure platform for tuition billing, payment collection, official receipts and financial reporting.</p>
+            <div class="feat"><i class="bi bi-receipt"></i><div><b>Official receipts</b><small>Automatic generation, reprint and audit log</small></div></div>
+            <div class="feat"><i class="bi bi-shield-check"></i><div><b>Role-based access</b><small>Separate Administrator and Cashier accounts</small></div></div>
+            <div class="feat"><i class="bi bi-graph-up-arrow"></i><div><b>Real-time reports</b><small>Collections, balances and overdue accounts at a glance</small></div></div>
+        </div>
+        <div style="color:#8fa3cc;font-size:.8rem;position:relative;z-index:1">&copy; @DateTime.Now.Year University of Cebu &ndash; Banilad Campus &middot; Finance Office</div>
+    </section>
+
+    <section class="form-side">
+        <div class="login-card">
+            <div class="d-lg-none mb-4 d-flex align-items-center gap-2"><i class="bi bi-mortarboard-fill fs-3" style="color:#1e3a8a"></i><b>UC Banilad FinanceDesk</b></div>
+            <h2>Welcome back</h2>
+            <p class="text-muted mb-4">Sign in with your staff account to continue.</p>
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+            {
+                <div class="alert alert-danger d-flex align-items-center py-2" style="border-radius:12px"><i class="bi bi-exclamation-circle me-2"></i>@ViewData.ModelState[string.Empty].Errors[0].ErrorMessage</div>
+            }
+
+            <form method="post" asp-action="Login" autocomplete="off">
+                <input type="hidden" asp-for="ReturnUrl" />
+                <div class="mb-3">
+                    <label asp-for="Username" class="form-label fw-semibold small"></label>
+                    <div class="input-group"><span class="input-group-text"><i class="bi bi-person"></i></span><input asp-for="Username" class="form-control" placeholder="Enter your username" autofocus /></div>
+                    <span asp-validation-for="Username" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label fw-semibold small"></label>
+                    <div class="input-group"><span class="input-group-text"><i class="bi bi-lock"></i></span><input asp-for="Password" id="pw" class="form-control pw" placeholder="Enter your password" /><button type="button" class="btn-eye px-3" id="eye"><i class="bi bi-eye"></i></button></div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label small text-muted"></label>
+                    </div>
+                    <a asp-action="ForgotPassword" class="small fw-semibold text-decoration-none">Forgot password?</a>
+                </div>
+                <button class="btn btn-login w-100">Sign in <i class="bi bi-arrow-right ms-1"></i></button>
+            </form>
+            <p class="foot mt-4 mb-0 text-center">Authorized personnel only. All activity is recorded.</p>
+        </div>
+    </section>
+</div>
+<script>
+    document.getElementById('eye').addEventListener('click', function () {
+        var pw = document.getElementById('pw'); var show = pw.type === 'password';
+        pw.type = show ? 'text' : 'password';
+        this.innerHTML = '<i class="bi bi-eye' + (show ? '-slash' : '') + '"></i>';
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+@model List<Receipt>
+@{ ViewData["Title"] = "Receipts"; }
+<h3 class="mb-3">Receipt Log</h3>
+<form class="row g-2 mb-3"><div class="col-auto"><input name="q" value="@ViewBag.Q" class="form-control" placeholder="Receipt no. / student" /></div><div class="col-auto"><button class="btn btn-outline-secondary">Search</button></div></form>
+<table class="table table-striped bg-white">
+    <thead><tr><th>Receipt No.</th><th>Issued</th><th>Student</th><th class="text-end">Amount</th><th>Times Printed</th><th>Last Printed</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var r in Model) {
+        <tr><td>@r.ReceiptNo</td><td>@r.IssuedAt.ToString("yyyy-MM-dd HH:mm")</td><td>@r.Payment.Invoice.Student.FullName</td>
+        <td class="text-end">@r.Payment.Amount.Money()</td><td>@r.PrintCount</td><td>@(r.LastPrintedAt?.ToString("yyyy-MM-dd HH:mm"))</td>
+        <td class="text-end">
+            <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@r.Id">View</a>
+            <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@r.Id" asp-route-print="true">Reprint</a>
+            <a class="btn btn-sm btn-outline-success" asp-action="Download" asp-route-id="@r.Id">Download</a>
+        </td></tr>
+    }
+    </tbody>
+</table>

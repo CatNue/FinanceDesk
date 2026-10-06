@@ -1,0 +1,10 @@
+@model DeleteAccountVM
+@{ ViewData["Title"] = "Delete My Account"; }
+<h3 class="mb-1 text-danger">Delete My Account</h3>
+<p class="text-muted">This will permanently delete your account. This cannot be undone. Enter your password to confirm.</p>
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<form method="post" style="max-width:480px" onsubmit="return confirm('This is permanent. Delete your account now?')">
+    <div class="mb-3"><label asp-for="Password" class="form-label"></label><input asp-for="Password" class="form-control" /><span asp-validation-for="Password" class="text-danger"></span></div>
+    <button class="btn btn-danger">Permanently delete my account</button>
+    <a class="btn btn-light" asp-controller="Home" asp-action="Index">Cancel</a>
+</form>

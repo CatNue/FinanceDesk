@@ -1,0 +1,15 @@
+@model Payment
+@{ ViewData["Title"] = "Edit Payment"; }
+<h3>Edit Payment</h3>
+<p class="text-muted">@Model.Invoice.InvoiceNo &mdash; @Model.Invoice.Student.FullName</p>
+<form method="post" style="max-width:650px">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3"><label asp-for="Amount" class="form-label"></label><input asp-for="Amount" type="number" step="0.01" class="form-control" /><span asp-validation-for="Amount" class="text-danger"></span></div>
+    <div class="row">
+        <div class="col mb-3"><label asp-for="PaymentDate" class="form-label"></label><input asp-for="PaymentDate" type="date" class="form-control" /></div>
+        <div class="col mb-3"><label asp-for="Method" class="form-label"></label><select asp-for="Method" asp-items="(SelectList)ViewBag.Methods" class="form-select"></select></div>
+    </div>
+    <div class="mb-3"><label asp-for="ReferenceNo" class="form-label"></label><input asp-for="ReferenceNo" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Remarks" class="form-label"></label><input asp-for="Remarks" class="form-control" /></div>
+    <button class="btn btn-primary">Save</button> <a class="btn btn-light" asp-action="Index">Cancel</a>
+</form>

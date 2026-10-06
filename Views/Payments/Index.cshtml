@@ -1,0 +1,30 @@
+@model List<Payment>
+@{ ViewData["Title"] = "Payments"; bool fl = ViewBag.Flagged; }
+<div class="d-flex justify-content-between mb-3">
+    <h3>Payments @(fl ? "- Flagged for review" : "")</h3>
+    <div><a class="btn btn-success" asp-action="Create">+ Record Payment</a>
+    <a class="btn btn-outline-warning" asp-action="Index" asp-route-flagged="@(!fl)">@(fl ? "Show All" : "Show Flagged")</a></div>
+</div>
+<form class="row g-2 mb-3"><input type="hidden" name="flagged" value="@fl.ToString().ToLower()" />
+    <div class="col-auto"><input name="q" value="@ViewBag.Q" class="form-control" placeholder="Reference / invoice / student" /></div>
+    <div class="col-auto"><button class="btn btn-outline-secondary">Search</button></div></form>
+<table class="table table-striped bg-white">
+    <thead><tr><th>Date</th><th>Student</th><th>Invoice</th><th>Method</th><th>Reference</th><th class="text-end">Amount</th><th>Status</th><th>Remarks</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var p in Model) {
+        <tr class="@(p.Status == "Flagged" ? "table-warning" : "")">
+            <td>@p.PaymentDate.ToString("yyyy-MM-dd")</td><td>@p.Invoice.Student.FullName</td>
+            <td><a asp-controller="Invoices" asp-action="Details" asp-route-id="@p.InvoiceId">@p.Invoice.InvoiceNo</a></td>
+            <td>@p.Method</td><td>@p.ReferenceNo</td><td class="text-end">@p.Amount.Money()</td><td>@p.Status</td><td>@p.Remarks</td>
+            <td class="text-end text-nowrap">
+                @if (p.Receipt != null) { <a class="btn btn-sm btn-outline-primary" asp-controller="Receipts" asp-action="Details" asp-route-id="@p.Receipt.Id">Receipt</a> }
+                @if (User.IsInRole("Admin"))
+                {
+                    if (p.Status == "Flagged") { <form asp-action="Resolve" asp-route-id="@p.Id" method="post" class="d-inline"><button class="btn btn-sm btn-warning">Resolve</button></form> }
+                    <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@p.Id">Edit</a>
+                    <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline" onsubmit="return confirm('Delete this payment and its receipt?')"><button class="btn btn-sm btn-outline-danger">Delete</button></form>
+                }
+            </td></tr>
+    }
+    </tbody>
+</table>

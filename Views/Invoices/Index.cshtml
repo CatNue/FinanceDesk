@@ -1,0 +1,43 @@
+@model List<Invoice>
+@{ ViewData["Title"] = "Invoices"; bool arch = ViewBag.Archived; }
+<div class="d-flex justify-content-between mb-3">
+    <h3>Invoices @(arch ? "(Archived)" : "")</h3>
+    <div>
+        <a class="btn btn-primary" asp-action="Create">+ New Invoice</a>
+        @if (User.IsInRole("Admin"))
+        {
+            <a class="btn btn-outline-primary" asp-action="Batch">Batch Generate</a>
+            <a class="btn btn-outline-secondary" asp-action="Index" asp-route-archived="@(!arch)">@(arch ? "View Active" : "View Archived")</a>
+        }
+    </div>
+</div>
+<form class="row g-2 mb-3">
+    <input type="hidden" name="archived" value="@arch.ToString().ToLower()" />
+    <div class="col-auto"><input name="q" value="@ViewBag.Q" class="form-control" placeholder="Invoice no. / student" /></div>
+    <div class="col-auto">
+        <select name="status" class="form-select">
+            <option value="">All statuses</option>
+            @foreach (var s in new[] { "Unpaid", "Partial", "Paid", "Overdue" }) { <option value="@s" selected="@(ViewBag.Status == s)">@s</option> }
+        </select>
+    </div>
+    <div class="col-auto"><button class="btn btn-outline-secondary">Filter</button></div>
+</form>
+<table class="table table-striped bg-white">
+    <thead><tr><th>Invoice</th><th>Student</th><th>Fee</th><th>Due</th><th class="text-end">Total</th><th class="text-end">Balance</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var i in Model) {
+        var badge = i.Status == "Paid" ? "success" : i.Status == "Overdue" ? "danger" : i.Status == "Partial" ? "warning" : "secondary";
+        <tr><td>@i.InvoiceNo</td><td>@i.Student.FullName</td><td>@i.Fee.Name</td><td>@i.DueDate.ToString("yyyy-MM-dd")</td>
+        <td class="text-end">@i.Total.Money()</td><td class="text-end">@i.Balance.Money()</td>
+        <td><span class="badge bg-@badge">@i.Status</span></td>
+        <td class="text-end">
+            <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@i.Id">View</a>
+            @if (User.IsInRole("Admin"))
+            {
+                <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@i.Id">Edit</a>
+                <form asp-action="Archive" asp-route-id="@i.Id" method="post" class="d-inline"><button class="btn btn-sm btn-outline-dark">@(arch ? "Restore" : "Archive")</button></form>
+            }
+        </td></tr>
+    }
+    </tbody>
+</table>

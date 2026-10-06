@@ -1,0 +1,46 @@
+@model Invoice
+@{ ViewData["Title"] = Model.InvoiceNo; }
+<div class="d-flex justify-content-between mb-3">
+    <h3>Invoice @Model.InvoiceNo @(Model.IsArchived ? "(archived)" : "")</h3>
+    <div>
+        @if (Model.Balance > 0) { <a class="btn btn-success" asp-controller="Payments" asp-action="Create" asp-route-invoiceId="@Model.Id">Record Payment</a> }
+        @if (User.IsInRole("Admin"))
+        {
+            <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+            <form asp-action="Archive" asp-route-id="@Model.Id" method="post" class="d-inline"><button class="btn btn-outline-dark">@(Model.IsArchived ? "Restore" : "Archive")</button></form>
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline" onsubmit="return confirm('Delete this invoice?')"><button class="btn btn-outline-danger">Delete</button></form>
+        }
+        <a class="btn btn-light" asp-action="Index">Back</a>
+    </div>
+</div>
+<div class="row g-3 mb-3">
+    <div class="col-md-6"><div class="card"><div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-4">Student</dt><dd class="col-8"><a asp-controller="Students" asp-action="Details" asp-route-id="@Model.StudentId">@Model.Student.StudentNo - @Model.Student.FullName</a></dd>
+            <dt class="col-4">Fee</dt><dd class="col-8">@Model.Fee.Name</dd>
+            <dt class="col-4">Issued</dt><dd class="col-8">@Model.IssueDate.ToString("yyyy-MM-dd")</dd>
+            <dt class="col-4">Due</dt><dd class="col-8">@Model.DueDate.ToString("yyyy-MM-dd")</dd>
+            <dt class="col-4">Status</dt><dd class="col-8">@Model.Status</dd>
+            <dt class="col-4">Installments</dt><dd class="col-8">@Model.Installments @(Model.Installments > 1 ? $"x {Model.InstallmentAmount.Money()}" : "")</dd>
+            <dt class="col-4">Notes</dt><dd class="col-8">@Model.Notes</dd>
+        </dl></div></div></div>
+    <div class="col-md-6"><div class="card"><div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-6">Amount</dt><dd class="col-6 text-end">@Model.Amount.Money()</dd>
+            <dt class="col-6">Discount @(Model.Discount != null ? $"({Model.Discount.Name})" : "")</dt><dd class="col-6 text-end">- @Model.DiscountAmount.Money()</dd>
+            <dt class="col-6">Late Fee</dt><dd class="col-6 text-end">@Model.LateFee.Money()</dd>
+            <dt class="col-6">Total</dt><dd class="col-6 text-end fw-bold">@Model.Total.Money()</dd>
+            <dt class="col-6">Paid</dt><dd class="col-6 text-end text-success">@Model.AmountPaid.Money()</dd>
+            <dt class="col-6">Balance</dt><dd class="col-6 text-end fw-bold text-danger">@Model.Balance.Money()</dd>
+        </dl></div></div></div>
+</div>
+<h5>Payments</h5>
+<table class="table table-sm bg-white">
+    <thead><tr><th>Date</th><th>Method</th><th>Reference</th><th class="text-end">Amount</th><th>Status</th><th>Receipt</th></tr></thead>
+    <tbody>
+    @foreach (var p in Model.Payments.OrderBy(p => p.PaymentDate)) {
+        <tr><td>@p.PaymentDate.ToString("yyyy-MM-dd")</td><td>@p.Method</td><td>@p.ReferenceNo</td><td class="text-end">@p.Amount.Money()</td><td>@p.Status</td>
+        <td>@if (p.Receipt != null) { <a asp-controller="Receipts" asp-action="Details" asp-route-id="@p.Receipt.Id">@p.Receipt.ReceiptNo</a> }</td></tr>
+    }
+    </tbody>
+</table>

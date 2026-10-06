@@ -1,0 +1,25 @@
+@model Receipt
+@{ ViewData["Title"] = Model.ReceiptNo; var p = Model.Payment; var inv = p.Invoice; }
+<div class="no-print mb-3">
+    <a class="btn btn-primary" asp-action="Details" asp-route-id="@Model.Id" asp-route-print="true">Print</a>
+    <a class="btn btn-outline-success" asp-action="Download" asp-route-id="@Model.Id">Download</a>
+    <a class="btn btn-light" asp-action="Index">Back to log</a>
+</div>
+<div class="card mx-auto" style="max-width:600px">
+    <div class="card-body">
+        <h4 class="text-center">OFFICIAL RECEIPT</h4>
+        <p class="text-center text-muted mb-4">FinanceDesk &middot; School Billing</p>
+        <dl class="row">
+            <dt class="col-5">Receipt No.</dt><dd class="col-7">@Model.ReceiptNo</dd>
+            <dt class="col-5">Date Issued</dt><dd class="col-7">@Model.IssuedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+            <dt class="col-5">Received From</dt><dd class="col-7">@inv.Student.FullName (@inv.Student.StudentNo)</dd>
+            <dt class="col-5">Invoice</dt><dd class="col-7">@inv.InvoiceNo &mdash; @inv.Fee.Name</dd>
+            <dt class="col-5">Payment Method</dt><dd class="col-7">@p.Method @(string.IsNullOrEmpty(p.ReferenceNo) ? "" : $"(Ref: {p.ReferenceNo})")</dd>
+            <dt class="col-5">Amount Paid</dt><dd class="col-7 fw-bold fs-5">@p.Amount.Money()</dd>
+            <dt class="col-5">Invoice Total</dt><dd class="col-7">@inv.Total.Money()</dd>
+            <dt class="col-5">Remaining Balance</dt><dd class="col-7">@inv.Balance.Money()</dd>
+        </dl>
+        <p class="text-center text-muted small mb-0">Printed @Model.PrintCount time(s). Thank you for your payment.</p>
+    </div>
+</div>
+@section Scripts { @if (ViewBag.AutoPrint == true) { <script>window.onload = function () { window.print(); };</script> } }

@@ -1,0 +1,20 @@
+@model Student
+@{ ViewData["Title"] = "Student History"; var inv = Model.Invoices.OrderByDescending(i => i.IssueDate).ToList(); var live = inv.Where(i => !i.IsArchived).ToList(); }
+<div class="d-flex justify-content-between mb-3">
+    <div><h3>@Model.FullName</h3><div class="text-muted">@Model.StudentNo &middot; @Model.GradeLevel &middot; @Model.Email</div></div>
+    <div><a class="btn btn-primary" asp-controller="Invoices" asp-action="Create" asp-route-studentId="@Model.Id">+ Invoice</a> <a class="btn btn-light" asp-action="Index">Back</a></div>
+</div>
+<div class="row mb-3">
+    <div class="col-md-4"><div class="card"><div class="card-body">Total Billed<div class="h4">@live.Sum(i => i.Total).Money()</div></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body">Total Paid<div class="h4 text-success">@live.Sum(i => i.AmountPaid).Money()</div></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body">Balance<div class="h4 text-danger">@live.Sum(i => i.Balance).Money()</div></div></div></div>
+</div>
+<table class="table table-striped bg-white">
+    <thead><tr><th>Invoice</th><th>Fee</th><th>Due</th><th class="text-end">Total</th><th class="text-end">Paid</th><th class="text-end">Balance</th><th>Status</th></tr></thead>
+    <tbody>
+    @foreach (var i in inv) {
+        <tr><td><a asp-controller="Invoices" asp-action="Details" asp-route-id="@i.Id">@i.InvoiceNo</a>@(i.IsArchived ? " (archived)" : "")</td><td>@i.Fee.Name</td><td>@i.DueDate.ToString("yyyy-MM-dd")</td>
+        <td class="text-end">@i.Total.Money()</td><td class="text-end">@i.AmountPaid.Money()</td><td class="text-end">@i.Balance.Money()</td><td>@i.Status</td></tr>
+    }
+    </tbody>
+</table>

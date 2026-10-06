@@ -1,0 +1,61 @@
+@{
+    ViewData["Title"] = "Cashier Dashboard";
+    var me = (string)ViewBag.Me;
+    var hour = DateTime.Now.Hour;
+    var greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+}
+<div class="hero-banner">
+    <div class="sub small text-uppercase" style="letter-spacing:.08em">Cashier Workstation</div>
+    <h3>@greet, @((me ?? "Cashier").Split(' ')[0])</h3>
+    <div class="sub">Ready to collect payments. Here is your day so far.</div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-6"><a class="quick big" asp-controller="Payments" asp-action="Create"><i class="bi bi-cash-coin"></i><span style="font-size:1.15rem">Record a Payment<small>Accept payment and print the official receipt</small></span></a></div>
+    <div class="col-lg-6">
+        <div class="card h-100"><div class="card-body d-flex flex-column justify-content-center">
+            <label class="form-label mb-1">Find a student</label>
+            <form asp-controller="Students" asp-action="Index" method="get" class="d-flex gap-2">
+                <input name="q" class="form-control" placeholder="Name, student no. or grade level" />
+                <button class="btn btn-primary"><i class="bi bi-search"></i></button>
+            </form>
+        </div></div>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-xl-3"><div class="stat"><div class="stat-icon ic-green"><i class="bi bi-wallet2"></i></div><div><div class="stat-label">My Collections Today</div><div class="stat-value">@(((decimal)ViewBag.MyToday).Money())</div><div class="stat-sub">@ViewBag.MyTodayCount transaction(s)</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="stat"><div class="stat-icon ic-blue"><i class="bi bi-calendar-check"></i></div><div><div class="stat-label">My Collections This Month</div><div class="stat-value">@(((decimal)ViewBag.MyMonth).Money())</div><div class="stat-sub">since @DateTime.Today.ToString("MMM 1")</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="stat"><div class="stat-icon ic-amber"><i class="bi bi-bank"></i></div><div><div class="stat-label">Campus Total Today</div><div class="stat-value">@(((decimal)ViewBag.AllToday).Money())</div><div class="stat-sub">all cashiers</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="stat"><div class="stat-icon ic-red"><i class="bi bi-exclamation-triangle"></i></div><div><div class="stat-label">Overdue Invoices</div><div class="stat-value">@ViewBag.OverdueCount</div><div class="stat-sub"><a asp-controller="Overdue" asp-action="Index">View list</a></div></div></div></div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-4">
+        <div class="card h-100"><div class="card-header">My cash-in today by method</div>
+            <ul class="list-group list-group-flush">
+            @if (((List<KeyValuePair<string, decimal>>)ViewBag.ByMethod).Count == 0) { <li class="list-group-item text-muted text-center py-4">No payments recorded yet today.</li> }
+            @foreach (var m in (List<KeyValuePair<string, decimal>>)ViewBag.ByMethod) {
+                <li class="list-group-item d-flex justify-content-between"><span>@m.Key</span><strong>@m.Value.Money()</strong></li>
+            }
+            </ul></div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card h-100"><div class="card-header d-flex justify-content-between align-items-center">Invoices due in the next 7 days <a class="small" asp-controller="Invoices" asp-action="Index">All invoices</a></div>
+            <table class="table mb-0"><thead><tr><th>Invoice</th><th>Student</th><th>Due</th><th class="text-end">Balance</th><th></th></tr></thead><tbody>
+            @foreach (var i in (List<Invoice>)ViewBag.DueSoon) {
+                <tr><td>@i.InvoiceNo</td><td>@i.Student.FullName</td><td>@i.DueDate.ToString("MMM dd")</td><td class="text-end fw-semibold">@i.Balance.Money()</td>
+                <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-controller="Payments" asp-action="Create" asp-route-invoiceId="@i.Id">Collect</a></td></tr>
+            }
+            </tbody></table></div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">My recent transactions <a class="small" asp-controller="Payments" asp-action="Index">All payments</a></div>
+    <table class="table mb-0"><thead><tr><th>Date</th><th>Student</th><th>Invoice</th><th>Method</th><th class="text-end">Amount</th></tr></thead><tbody>
+    @foreach (var p in (List<Payment>)ViewBag.MyRecent) {
+        <tr><td>@p.PaymentDate.ToString("MMM dd")</td><td>@p.Invoice.Student.FullName</td><td>@p.Invoice.InvoiceNo</td><td>@p.Method</td><td class="text-end fw-semibold">@p.Amount.Money()</td></tr>
+    }
+    </tbody></table>
+</div>

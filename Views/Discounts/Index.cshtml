@@ -1,0 +1,13 @@
+@model List<Discount>
+@{ ViewData["Title"] = "Discounts"; }
+<div class="d-flex justify-content-between mb-3"><h3>Discounts &amp; Scholarships</h3><a class="btn btn-primary" asp-action="Create">+ New Discount</a></div>
+<table class="table table-striped bg-white">
+    <thead><tr><th>Name</th><th>Type</th><th>Value</th><th>Active</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var d in Model) {
+        <tr><td>@d.Name</td><td>@d.Type</td><td>@d.Display</td><td>@(d.IsActive ? "Yes" : "No")</td>
+        <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@d.Id">Edit</a>
+        <form asp-action="Delete" asp-route-id="@d.Id" method="post" class="d-inline" onsubmit="return confirm('Delete this discount?')"><button class="btn btn-sm btn-outline-danger">Delete</button></form></td></tr>
+    }
+    </tbody>
+</table>

@@ -1,0 +1,108 @@
+@{
+    ViewData["Title"] = "Administrator Dashboard";
+    var flagged = (int)ViewBag.Flagged;
+    var fullName = User.FindFirst("FullName")?.Value ?? "Administrator";
+}
+<div class="hero-banner">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <div class="sub small text-uppercase" style="letter-spacing:.08em">Administrator Dashboard</div>
+            <h3>Welcome back, @fullName.Split(' ')[0]</h3>
+            <div class="sub">Institution-wide view of billing, collections and staff activity &mdash; @DateTime.Now.ToString("MMMM d, yyyy").</div>
+        </div>
+        <div class="text-end">
+            <div class="sub small">Collection rate</div>
+            <div style="font-size:2.2rem;font-weight:800;color:#f5b301;line-height:1">@ViewBag.Rate%</div>
+        </div>
+    </div>
+</div>
+
+@if (flagged > 0)
+{
+    <div class="alert alert-warning d-flex align-items-center justify-content-between" style="border-radius:12px">
+        <div><i class="bi bi-flag-fill me-2"></i><strong>@flagged payment(s)</strong> need your review (overpayment or duplicate reference).</div>
+        <a class="btn btn-sm btn-warning" asp-controller="Payments" asp-action="Index" asp-route-flagged="true">Review now</a>
+    </div>
+}
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-xl-3"><div class="stat"><div class="stat-icon ic-red"><i class="bi bi-cash-stack"></i></div><div><div class="stat-label">Total Outstanding</div><div class="stat-value">@(((decimal)ViewBag.Outstanding).Money())</div><div class="stat-sub">@ViewBag.OpenCount open invoice(s)</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="stat"><div class="stat-icon ic-amber"><i class="bi bi-alarm"></i></div><div><div class="stat-label">Overdue Amount</div><div class="stat-value">@(((decimal)ViewBag.OverdueTotal).Money())</div><div class="stat-sub">@ViewBag.OverdueCount invoice(s) past due</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="stat"><div class="stat-icon ic-green"><i class="bi bi-graph-up-arrow"></i></div><div><div class="stat-label">Collected This Month</div><div class="stat-value">@(((decimal)ViewBag.Month).Money())</div><div class="stat-sub">Today: @(((decimal)ViewBag.Today).Money())</div></div></div></div>
+    <div class="col-6 col-xl-3"><div class="stat"><div class="stat-icon ic-blue"><i class="bi bi-people"></i></div><div><div class="stat-label">Students / Staff</div><div class="stat-value">@ViewBag.Students / @ViewBag.ActiveUsers</div><div class="stat-sub">enrolled students / active accounts</div></div></div></div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-3"><a class="quick" asp-controller="Users" asp-action="Index"><i class="bi bi-person-gear"></i><span>User Accounts<small>Add cashiers, reset passwords</small></span></a></div>
+    <div class="col-6 col-md-3"><a class="quick" asp-controller="Fees" asp-action="Index"><i class="bi bi-tags"></i><span>Fees &amp; Discounts<small>Set tuition and scholarships</small></span></a></div>
+    <div class="col-6 col-md-3"><a class="quick" asp-controller="Reports" asp-action="Index"><i class="bi bi-file-earmark-excel"></i><span>Reports<small>Export to Excel / PDF</small></span></a></div>
+    <div class="col-6 col-md-3"><a class="quick" asp-controller="Audit" asp-action="Index"><i class="bi bi-clipboard-data"></i><span>Audit Log<small>Who did what, and when</small></span></a></div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-8"><div class="card h-100"><div class="card-header">Billed vs. collected &mdash; last 6 months</div><div class="card-body"><canvas id="trendChart" height="115"></canvas></div></div></div>
+    <div class="col-lg-4"><div class="card h-100"><div class="card-header">Invoice status</div><div class="card-body d-flex justify-content-center align-items-center"><div style="max-width:230px;width:100%"><canvas id="statusChart"></canvas></div></div></div></div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-4"><div class="card h-100"><div class="card-header">This month by fee type</div><div class="card-body d-flex justify-content-center align-items-center"><div style="max-width:230px;width:100%"><canvas id="catChart"></canvas></div></div></div></div>
+    <div class="col-lg-4"><div class="card h-100"><div class="card-header">This month by cashier</div><div class="card-body"><canvas id="cashierChart"></canvas></div></div></div>
+    <div class="col-lg-4">
+        <div class="card h-100"><div class="card-header d-flex justify-content-between align-items-center">Recent activity <a class="small" asp-controller="Audit" asp-action="Index">View all</a></div>
+            <ul class="list-group list-group-flush">
+            @foreach (var a in (List<AuditLog>)ViewBag.Activity) {
+                <li class="list-group-item small"><div class="fw-semibold">@a.Username <span class="text-muted fw-normal">&middot; @a.Action</span></div><div class="text-muted text-truncate">@a.Details</div><div style="font-size:.7rem;color:#94a3b8">@a.Timestamp.ToString("MMM dd, h:mm tt")</div></li>
+            }
+            </ul></div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">Largest overdue balances <a class="small" asp-controller="Overdue" asp-action="Index">Manage overdue</a></div>
+    <table class="table mb-0"><thead><tr><th>Invoice</th><th>Student</th><th>Due date</th><th class="text-end">Balance</th></tr></thead><tbody>
+    @foreach (var i in (List<Invoice>)ViewBag.TopOverdue) {
+        <tr><td><a asp-controller="Invoices" asp-action="Details" asp-route-id="@i.Id">@i.InvoiceNo</a></td><td>@i.Student.FullName</td><td>@i.DueDate.ToString("MMM dd, yyyy")</td><td class="text-end text-danger fw-semibold">@i.Balance.Money()</td></tr>
+    }
+    </tbody></table>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    var peso = function (v) { return '\u20B1' + Number(v).toLocaleString(); };
+    var monthLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize((List<string>)ViewBag.MonthLabels));
+    var billed = @Html.Raw(System.Text.Json.JsonSerializer.Serialize((List<decimal>)ViewBag.Billed));
+    var collected = @Html.Raw(System.Text.Json.JsonSerializer.Serialize((List<decimal>)ViewBag.Collected));
+    var catLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize((List<string>)ViewBag.CatLabels));
+    var catValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize((List<decimal>)ViewBag.CatValues));
+    var cashLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize((List<string>)ViewBag.CashierLabels));
+    var cashValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize((List<decimal>)ViewBag.CashierValues));
+    var status = @Html.Raw(System.Text.Json.JsonSerializer.Serialize((List<int>)ViewBag.StatusCounts));
+    var palette = ['#1e3a8a', '#f5b301', '#3b82f6', '#94a3b8', '#0ea5e9', '#f97316'];
+    var money = { callbacks: { label: function (c) { return ' ' + peso(c.parsed.y !== undefined && c.chart.config.type !== 'doughnut' ? (c.chart.options.indexAxis === 'y' ? c.parsed.x : c.parsed.y) : c.parsed); } } };
+
+    new Chart(document.getElementById('trendChart'), {
+        type: 'bar',
+        data: { labels: monthLabels, datasets: [
+            { label: 'Billed', data: billed, backgroundColor: '#f5b301', borderRadius: 6, maxBarThickness: 32 },
+            { label: 'Collected', data: collected, backgroundColor: '#1e3a8a', borderRadius: 6, maxBarThickness: 32 } ] },
+        options: { plugins: { tooltip: money, legend: { position: 'top', align: 'end', labels: { usePointStyle: true } } },
+                   scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { callback: peso } }, x: { grid: { display: false } } } }
+    });
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: { labels: ['Paid', 'Partial', 'Unpaid', 'Overdue'], datasets: [{ data: status, backgroundColor: ['#22c55e', '#f59e0b', '#94a3b8', '#ef4444'], borderWidth: 0 }] },
+        options: { cutout: '68%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 12 } } } }
+    });
+    new Chart(document.getElementById('catChart'), {
+        type: 'doughnut',
+        data: { labels: catLabels.length ? catLabels : ['No collections yet'], datasets: [{ data: catValues.length ? catValues : [1], backgroundColor: catLabels.length ? palette : ['#e2e8f0'], borderWidth: 0 }] },
+        options: { cutout: '62%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 12 } }, tooltip: catLabels.length ? { callbacks: { label: function (c) { return ' ' + peso(c.parsed); } } } : { enabled: false } } }
+    });
+    new Chart(document.getElementById('cashierChart'), {
+        type: 'bar',
+        data: { labels: cashLabels.length ? cashLabels : ['No data'], datasets: [{ data: cashValues.length ? cashValues : [0], backgroundColor: '#1e3a8a', borderRadius: 6, maxBarThickness: 28 }] },
+        options: { indexAxis: 'y', plugins: { legend: { display: false }, tooltip: money }, scales: { x: { beginAtZero: true, ticks: { callback: peso }, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } } }
+    });
+</script>
+}

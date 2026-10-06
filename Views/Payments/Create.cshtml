@@ -1,0 +1,20 @@
+@model PaymentVM
+@{ ViewData["Title"] = "Record Payment"; }
+<h3>Record Payment</h3>
+<form method="post" style="max-width:650px">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3"><label asp-for="StudentId" class="form-label"></label>
+        <select asp-for="StudentId" asp-items="(SelectList)ViewBag.Students" class="form-select"><option value="">-- select student --</option></select>
+        <span asp-validation-for="StudentId" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="InvoiceId" class="form-label"></label>
+        <select asp-for="InvoiceId" asp-items="(SelectList)ViewBag.Invoices" class="form-select"><option value="">-- Auto-match oldest unpaid invoices --</option></select>
+        <span asp-validation-for="InvoiceId" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="Amount" class="form-label"></label><input asp-for="Amount" type="number" step="0.01" class="form-control" /><span asp-validation-for="Amount" class="text-danger"></span></div>
+    <div class="row">
+        <div class="col mb-3"><label asp-for="PaymentDate" class="form-label"></label><input asp-for="PaymentDate" type="date" class="form-control" /></div>
+        <div class="col mb-3"><label asp-for="Method" class="form-label"></label><select asp-for="Method" asp-items="(SelectList)ViewBag.Methods" class="form-select"></select></div>
+    </div>
+    <div class="mb-3"><label asp-for="ReferenceNo" class="form-label"></label><input asp-for="ReferenceNo" class="form-control" /></div>
+    <div class="mb-3"><label asp-for="Remarks" class="form-label"></label><input asp-for="Remarks" class="form-control" /></div>
+    <button class="btn btn-success">Save &amp; Generate Receipt</button> <a class="btn btn-light" asp-action="Index">Cancel</a>
+</form>

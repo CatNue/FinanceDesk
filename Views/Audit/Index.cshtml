@@ -1,0 +1,21 @@
+@model List<AuditLog>
+@{ ViewData["Title"] = "Audit Log"; }
+<div class="d-flex justify-content-between">
+    <div><h3>Audit Log</h3><div class="text-muted">Every login, payment, invoice and account change is recorded here (latest 300 shown).</div></div>
+</div>
+<form class="row g-2 mb-3">
+    <div class="col-md-3"><input name="q" value="@ViewBag.Q" class="form-control" placeholder="Search details..." /></div>
+    <div class="col-md-2"><select name="user" class="form-select"><option value="">All users</option>@foreach (var u in (List<string>)ViewBag.Users) { <option value="@u" selected="@(ViewBag.User == u)">@u</option> }</select></div>
+    <div class="col-md-2"><select name="action" class="form-select"><option value="">All actions</option>@foreach (var a in new[] { "Created", "Updated", "Deleted", "Login", "Logout", "LoginFailed" }) { <option value="@a" selected="@(ViewBag.Action == a)">@a</option> }</select></div>
+    <div class="col-md-2"><input type="date" name="from" value="@(((DateTime?)ViewBag.From)?.ToString("yyyy-MM-dd"))" class="form-control" /></div>
+    <div class="col-md-2"><input type="date" name="to" value="@(((DateTime?)ViewBag.To)?.ToString("yyyy-MM-dd"))" class="form-control" /></div>
+    <div class="col-md-1"><button class="btn btn-outline-secondary w-100"><i class="bi bi-funnel"></i></button></div>
+</form>
+<table class="table">
+    <thead><tr><th>Date &amp; Time</th><th>User</th><th>Action</th><th>Record</th><th>Details</th></tr></thead>
+    <tbody>
+    @foreach (var a in Model) {
+        <tr><td class="text-nowrap">@a.Timestamp.ToString("MMM dd, yyyy h:mm tt")</td><td>@a.Username</td><td>@a.Action</td><td>@a.Entity</td><td class="small">@a.Details</td></tr>
+    }
+    </tbody>
+</table>

@@ -1,0 +1,19 @@
+@model BatchVM
+@{ ViewData["Title"] = "Batch Invoices"; }
+<h3>Batch Generate Invoices</h3>
+<p class="text-muted">Creates one invoice for every student in the selected grade level (or all students).</p>
+<form method="post" style="max-width:650px">
+    <div class="mb-3"><label asp-for="GradeLevel" class="form-label"></label>
+        <select asp-for="GradeLevel" asp-items="(SelectList)ViewBag.Levels" class="form-select"><option value="">-- All students --</option></select></div>
+    <div class="mb-3"><label asp-for="FeeId" class="form-label"></label>
+        <select asp-for="FeeId" asp-items="(SelectList)ViewBag.Fees" class="form-select"></select>
+        <span asp-validation-for="FeeId" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="DiscountId" class="form-label"></label>
+        <select asp-for="DiscountId" asp-items="(SelectList)ViewBag.Discounts" class="form-select"><option value="">-- no discount --</option></select></div>
+    <div class="row">
+        <div class="col mb-3"><label asp-for="IssueDate" class="form-label"></label><input asp-for="IssueDate" type="date" class="form-control" /></div>
+        <div class="col mb-3"><label asp-for="DueDate" class="form-label"></label><input asp-for="DueDate" type="date" class="form-control" /><span asp-validation-for="DueDate" class="text-danger"></span></div>
+    </div>
+    <div class="mb-3"><label asp-for="Installments" class="form-label"></label><input asp-for="Installments" type="number" min="1" max="12" class="form-control" /></div>
+    <button class="btn btn-primary" onclick="return confirm('Generate invoices now?')">Generate</button> <a class="btn btn-light" asp-action="Index">Cancel</a>
+</form>

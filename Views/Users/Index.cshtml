@@ -1,0 +1,21 @@
+@model List<User>
+@{ ViewData["Title"] = "User Accounts"; }
+<div class="d-flex justify-content-between">
+    <div><h3>User Accounts</h3><div class="text-muted">Manage administrator and cashier logins.</div></div>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-person-plus"></i> New Account</a>
+</div>
+<table class="table">
+    <thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Last Login</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var u in Model) {
+        <tr><td class="fw-semibold">@u.FullName</td><td>@u.Username</td><td>@u.Email</td><td>@u.Role</td><td>@(u.IsActive ? "Active" : "Inactive")</td>
+        <td>@(u.LastLogin?.ToString("MMM dd, yyyy h:mm tt") ?? "Never")</td>
+        <td class="text-end text-nowrap">
+            <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@u.Id">Edit</a>
+            <a class="btn btn-sm btn-outline-primary" asp-action="ResetPassword" asp-route-id="@u.Id">Reset password</a>
+            <form asp-action="ToggleActive" asp-route-id="@u.Id" method="post" class="d-inline" onsubmit="return confirm('Change access for this account?')"><button class="btn btn-sm @(u.IsActive ? "btn-outline-danger" : "btn-outline-success")">@(u.IsActive ? "Deactivate" : "Activate")</button></form>
+            <form asp-action="Delete" asp-route-id="@u.Id" method="post" class="d-inline" onsubmit="return confirm('Permanently delete this account? This cannot be undone.')"><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+        </td></tr>
+    }
+    </tbody>
+</table>

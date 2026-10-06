@@ -1,0 +1,14 @@
+@model UserCreateVM
+@{ ViewData["Title"] = "New Account"; }
+<h3 class="mb-3">New Account</h3>
+<form method="post" style="max-width:560px">
+    <div class="mb-3"><label asp-for="FullName" class="form-label"></label><input asp-for="FullName" class="form-control" /><span asp-validation-for="FullName" class="text-danger"></span></div>
+    <div class="row">
+        <div class="col mb-3"><label asp-for="Username" class="form-label"></label><input asp-for="Username" class="form-control" autocomplete="off" /><span asp-validation-for="Username" class="text-danger"></span></div>
+        <div class="col mb-3"><label asp-for="Role" class="form-label"></label><select asp-for="Role" class="form-select"><option value="Cashier">Cashier</option><option value="Admin">Admin</option></select></div>
+    </div>
+    <div class="mb-3"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" placeholder="you@ucbanilad.edu.ph" /><span asp-validation-for="Email" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="Password" class="form-label"></label><input asp-for="Password" class="form-control" autocomplete="new-password" /><span asp-validation-for="Password" class="text-danger"></span></div>
+    <div class="mb-3"><label asp-for="ConfirmPassword" class="form-label"></label><input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" /><span asp-validation-for="ConfirmPassword" class="text-danger"></span></div>
+    <button class="btn btn-primary">Create account</button> <a class="btn btn-light" asp-action="Index">Cancel</a>
+</form>
